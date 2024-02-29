@@ -34,7 +34,6 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
     private \DateTimeInterface $createdAt;
 
 
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
@@ -49,6 +48,9 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Inventory $inventory = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $roles = null;
 
     public function __construct()
     {
@@ -107,13 +109,6 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
         return $this->createdAt;
     }
 
-    /**
-     * @ORM\PrePersist
-     */
-    public function setCreatedAtValue(): void
-    {
-        $this->createdAt = new \DateTime();
-    }
 
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
@@ -224,6 +219,18 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
         }
 
         $this->inventory = $inventory;
+
+        return $this;
+    }
+
+    public function getRoles(): ?string
+    {
+        return $this->roles;
+    }
+
+    public function setRoles(string $roles): static
+    {
+        $this->roles = $roles;
 
         return $this;
     }

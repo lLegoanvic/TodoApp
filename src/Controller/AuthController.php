@@ -54,7 +54,7 @@ class AuthController extends AbstractController
         }
 
         $user->setUsername($username);
-
+        $user->setRoles('ROLE_USER');
         $errors = $validator->validate($user);
         if (count($errors) > 0) {
             $errorMessages = [];
