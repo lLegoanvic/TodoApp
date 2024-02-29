@@ -14,6 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource]
 class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface
 {
+
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -28,12 +30,10 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
     #[ORM\Column(length: 255)]
     private ?string $username = null;
 
-    #[Gedmo\Timestampable(on:"create")]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\Column(unique: true, nullable: true)]
-    private ?string $apiToken;
+
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
@@ -54,6 +54,7 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
     {
         $this->questProgress = new ArrayCollection();
         $this->tasks = new ArrayCollection();
+        $this->createdAt = new \DateTime();
     }
 
 
@@ -99,21 +100,19 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
         return $this;
     }
 
-    public function getApiToken(): ?string
-    {
-        return $this->apiToken;
-    }
 
-    public function setApiToken(string $apiToken): static
-    {
-        $this->apiToken = $apiToken;
-
-        return $this;
-    }
 
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTime();
     }
 
     public function setCreatedAt(\DateTimeInterface $createdAt): self

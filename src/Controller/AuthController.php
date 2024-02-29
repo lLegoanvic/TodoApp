@@ -25,7 +25,7 @@ class AuthController extends AbstractController
         $this->userRepository = $userRepository;
     }
 
-    #[Route('/api/register', name: 'apiregister')]
+    #[Route('/api/register', name: 'apiRegister')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, ValidatorInterface $validator): JsonResponse
     {
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -70,42 +70,4 @@ class AuthController extends AbstractController
 
     }
 
-    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
-    public function login(Request $request, AuthenticationUtils $authenticationUtils): JsonResponse
-    {
-        // Récupérer les données de la requête JSON
-        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-        // Récupérer l'email et le mot de passe de la requête
-        $email = $data['email'] ?? null;
-        $password = $data['password'] ?? null;
-
-        // Vérifier si l'email et le mot de passe sont présents
-        if (!$email || !$password) {
-            return new JsonResponse(['error' => 'Email and password are required'], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        // Tentative de connexion de l'utilisateur
-        try {
-            $user = $this->userRepository->find($email);
-
-            // Vérifier si l'utilisateur existe et si le mot de passe est correct
-            if (!$user || !$this->passwordEncoder->isPasswordValid($user, $password)) {
-                throw new BadCredentialsException('Invalid credentials');
-            }
-
-            // Générer un token JWT pour l'utilisateur
-            $token = $this->jwtEncoder->encode([
-                'email' => $user->getEmail(),
-                // Ajouter d'autres données de l'utilisateur au token si nécessaire
-            ]);
-
-            // Retourner le token JWT en réponse
-            return new JsonResponse(['token' => $token], JsonResponse::HTTP_OK);
-        } catch (BadCredentialsException $exception) {
-            return new JsonResponse(['error' => 'Invalid email or password'], JsonResponse::HTTP_UNAUTHORIZED);
-        } catch (\Exception $exception) {
-            return new JsonResponse(['error' => 'An unexpected error occurred'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
 }
