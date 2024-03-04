@@ -16,23 +16,27 @@ class Level
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $level = null;
+    private ?int $level = 1;
 
     #[ORM\Column]
-    private ?int $requiredXp = null;
+    private ?int $requiredXp = 100;
 
     #[ORM\Column]
-    private ?int $actualXp = null;
+    private ?int $actualXp = 0;
 
-    #[ORM\OneToOne(inversedBy: 'level', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(mappedBy: 'inventory', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -82,6 +86,11 @@ class Level
 
     public function setUser(User $user): static
     {
+        // set the owning side of the relation if necessary
+        if ($user->getLevel() !== $this) {
+            $user->setLevel($this);
+        }
+
         $this->user = $user;
 
         return $this;

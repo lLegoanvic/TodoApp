@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Inventory;
+use App\Entity\Level;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,16 +47,17 @@ class AuthController extends AbstractController
         if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password)) {
             return new JsonResponse(['message' => 'Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one digit, and one special character'], JsonResponse::HTTP_BAD_REQUEST);
         }
-
         $user->setPassword($userPasswordHasher->hashPassword($user, $password));
 
         $username = $data['username'];
-        if($this->getUser($username)!== null){
+        if($this->userRepository->findOneBy(['username' => $username])!== null){
             return new JsonResponse(['message' => 'username already in use, choose another one'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
         $user->setUsername($username);
-        $user->setRoles('ROLE_USER');
+
+
+        $user->setRoles(['ROLE_USER']);
         $errors = $validator->validate($user);
         if (count($errors) > 0) {
             $errorMessages = [];
@@ -66,8 +69,30 @@ class AuthController extends AbstractController
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        $inventory = new inventory();
+        $inventory->setUser($user);
+        $level = new level();
+        $level->setUser($user);
+        $this->entityManager->persist($level);
+        $this->entityManager->persist($inventory);
+        $this->entityManager->flush();
+
         return new JsonResponse(['message' => 'User registered!'], JsonResponse::HTTP_CREATED);
 
     }
+
+//    #[Route(path:"/api/login", name: 'apiLogin', methods: ['POST'])]
+//    public function apiLogin(): JsonResponse
+//    {
+//
+//        $user = $this->getUser();
+//
+//        return $this->json([
+//            'username' => $user->getUserIdentifier(),
+//            'roles' => $user->getRoles()
+//        ]);
+//
+//    }
 
 }

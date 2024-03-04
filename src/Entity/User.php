@@ -2,91 +2,83 @@
 
 namespace App\Entity;
 
-use Gedmo\Mapping\Annotation as Gedmo;
+use ApiPlatform\Action\NotFoundAction;
 use ApiPlatform\Metadata\ApiResource;
+use App\Controller\MeController;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource]
-class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface
+#[ApiResource(
+)]
+class   User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUserInterface
 {
-
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 180, unique: true)]
+    private ?string $username = null;
+
+    /**
+     * @var list<string> The user roles
+     */
+    #[ORM\Column]
+    private array $roles = [];
+
+    /**
+     * @var string The hashed password
+     */
+    #[ORM\Column]
+    private ?string $password = null;
+
+
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $username = null;
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private \DateTimeInterface $createdAt;
-
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $updatedAt = null;
-
-    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Level $level = null;
 
     #[ORM\OneToMany(targetEntity: QuestProgress::class, mappedBy: 'user')]
     private Collection $questProgress;
 
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'user')]
-    private Collection $tasks;
+    private Collection $task;
 
-    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Inventory $inventory = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $roles = null;
 
     public function __construct()
     {
         $this->questProgress = new ArrayCollection();
-        $this->tasks = new ArrayCollection();
-        $this->createdAt = new \DateTime();
+        $this->task = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
-
-
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function setId(?int $id): self
     {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
+        $this->id = $id;
         return $this;
     }
 
@@ -102,27 +94,94 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
         return $this;
     }
 
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
+    }
 
+    /**
+     * @see UserInterface
+     *
+     * @return list<string>
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
 
-    public function getCreatedAt(): ?\DateTimeInterface
+        return array_unique($roles);
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
 
@@ -136,11 +195,6 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
 
     public function setLevel(Level $level): static
     {
-        // set the owning side of the relation if necessary
-        if ($level->getUser() !== $this) {
-            $level->setUser($this);
-        }
-
         $this->level = $level;
 
         return $this;
@@ -179,15 +233,15 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
     /**
      * @return Collection<int, Task>
      */
-    public function getTasks(): Collection
+    public function getTask(): Collection
     {
-        return $this->tasks;
+        return $this->task;
     }
 
     public function addTask(Task $task): static
     {
-        if (!$this->tasks->contains($task)) {
-            $this->tasks->add($task);
+        if (!$this->task->contains($task)) {
+            $this->task->add($task);
             $task->setUser($this);
         }
 
@@ -196,7 +250,7 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
 
     public function removeTask(Task $task): static
     {
-        if ($this->tasks->removeElement($task)) {
+        if ($this->task->removeElement($task)) {
             // set the owning side to null (unless already changed)
             if ($task->getUser() === $this) {
                 $task->setUser(null);
@@ -213,27 +267,15 @@ class User implements \Symfony\Component\Security\Core\User\PasswordAuthenticate
 
     public function setInventory(Inventory $inventory): static
     {
-        // set the owning side of the relation if necessary
-        if ($inventory->getUser() !== $this) {
-            $inventory->setUser($this);
-        }
-
         $this->inventory = $inventory;
 
         return $this;
     }
 
-    public function getRoles(): ?string
+    public static function createFromPayload($id, array $payload): User
     {
-        return $this->roles;
+        $user = new User();
+        $user->setId($id);
+        return $user;
     }
-
-    public function setRoles(string $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-
 }

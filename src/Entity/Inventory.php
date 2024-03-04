@@ -17,11 +17,9 @@ class Inventory
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(inversedBy: 'inventory', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
 
-    #[ORM\Column]
+
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
@@ -33,10 +31,14 @@ class Inventory
     #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'inventory')]
     private Collection $pictures;
 
+    #[ORM\OneToOne(mappedBy: 'inventory', cascade: ['persist', 'remove'])]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->boosters = new ArrayCollection();
         $this->pictures = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -44,17 +46,7 @@ class Inventory
         return $this->id;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(User $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
+  
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -136,6 +128,23 @@ class Inventory
                 $picture->setInventory(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): static
+    {
+        // set the owning side of the relation if necessary
+        if ($user->getInventory() !== $this) {
+            $user->setInventory($this);
+        }
+
+        $this->user = $user;
 
         return $this;
     }

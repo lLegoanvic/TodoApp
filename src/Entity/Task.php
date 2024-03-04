@@ -22,9 +22,6 @@ class Task
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(inversedBy: 'tasks')]
-    private ?User $user = null;
-
     #[ORM\Column]
     private ?bool $done = null;
 
@@ -33,6 +30,9 @@ class Task
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'task')]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -63,17 +63,6 @@ class Task
         return $this;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
 
     public function isDone(): ?bool
     {
@@ -107,6 +96,18 @@ class Task
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

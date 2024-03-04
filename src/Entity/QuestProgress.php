@@ -16,8 +16,6 @@ class QuestProgress
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'questProgress')]
-    private ?User $user = null;
 
     #[ORM\ManyToOne]
     private ?Quest $quest = null;
@@ -34,22 +32,14 @@ class QuestProgress
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\ManyToOne(inversedBy: 'questProgress')]
+    private ?User $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
 
     public function getQuest(): ?Quest
     {
@@ -107,6 +97,18 @@ class QuestProgress
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
