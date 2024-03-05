@@ -25,7 +25,7 @@ class Picture
     #[ORM\JoinColumn(nullable: false)]
     private ?Inventory $inventory = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]

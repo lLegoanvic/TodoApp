@@ -32,13 +32,13 @@ class Inventory
     private Collection $pictures;
 
     #[ORM\OneToOne(mappedBy: 'inventory', cascade: ['persist', 'remove'])]
-    private ?User $user = null;
+    private ?User $userInventory = null;
 
     public function __construct()
     {
         $this->boosters = new ArrayCollection();
         $this->pictures = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
+//        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -132,19 +132,19 @@ class Inventory
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUserInventory(): ?User
     {
-        return $this->user;
+        return $this->userInventory;
     }
 
-    public function setUser(User $user): static
+    public function setUserInventory(User $userInventory): static
     {
         // set the owning side of the relation if necessary
-        if ($user->getInventory() !== $this) {
-            $user->setInventory($this);
+        if ($userInventory->getInventory() !== $this) {
+            $userInventory->setInventory($this);
         }
 
-        $this->user = $user;
+        $this->userInventory = $userInventory;
 
         return $this;
     }

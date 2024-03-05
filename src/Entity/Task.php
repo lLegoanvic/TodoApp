@@ -25,7 +25,7 @@ class Task
     #[ORM\Column]
     private ?bool $done = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]

@@ -24,8 +24,8 @@ class Level
     #[ORM\Column]
     private ?int $actualXp = 0;
 
-    #[ORM\OneToOne(mappedBy: 'inventory', cascade: ['persist', 'remove'])]
-    private ?User $user = null;
+    #[ORM\OneToOne(mappedBy: 'level', cascade: ['persist', 'remove'])]
+    private ?User $userLevel = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
@@ -33,10 +33,10 @@ class Level
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-    }
+//    public function __construct()
+//    {
+//        $this->createdAt = new \DateTimeImmutable();
+//    }
 
     public function getId(): ?int
     {
@@ -79,19 +79,19 @@ class Level
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUserLevel(): ?User
     {
-        return $this->user;
+        return $this->userLevel;
     }
 
-    public function setUser(User $user): static
+    public function setUserLevel(User $userLevel): static
     {
         // set the owning side of the relation if necessary
-        if ($user->getLevel() !== $this) {
-            $user->setLevel($this);
+        if ($userLevel->getLevel() !== $this) {
+            $userLevel->setLevel($this);
         }
 
-        $this->user = $user;
+        $this->userLevel = $userLevel;
 
         return $this;
     }
@@ -118,5 +118,21 @@ class Level
         $this->updatedAt = $updatedAt;
 
         return $this;
+    }
+
+    #[ORM\PreUpdate]
+    public function checkLevelUp(): void
+    {
+        // Vérifiez si l'actualXp dépasse le requiredXp
+        if ($this->actualXp >= $this->requiredXp) {
+            // Calculer le nouveau niveau
+            $newLevel = $this->level + 1;
+            $newRequiredXp = (int)($this->requiredXp * 1.15); // Augmente de 15%
+
+            // Mettre à jour le niveau et les XP
+            $this->level = $newLevel;
+            $this->actualXp -= $this->requiredXp;
+            $this->requiredXp = $newRequiredXp;
+        }
     }
 }

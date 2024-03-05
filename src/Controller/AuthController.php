@@ -71,9 +71,9 @@ class AuthController extends AbstractController
         $this->entityManager->flush();
 
         $inventory = new inventory();
-        $inventory->setUser($user);
+        $inventory->setUserInventory($user);
         $level = new level();
-        $level->setUser($user);
+        $level->setUserLevel($user);
         $this->entityManager->persist($level);
         $this->entityManager->persist($inventory);
         $this->entityManager->flush();

@@ -50,7 +50,7 @@ class   User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUs
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'userLevel', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?Level $level = null;
 
@@ -60,7 +60,7 @@ class   User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUs
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'user')]
     private Collection $task;
 
-    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'userInventory', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?Inventory $inventory = null;
 
@@ -68,7 +68,7 @@ class   User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUs
     {
         $this->questProgress = new ArrayCollection();
         $this->task = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
+//        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int

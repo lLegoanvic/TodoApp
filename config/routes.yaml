@@ -5,3 +5,7 @@ controllers:
     type: attribute
 api_login_check:
     path: /api/login_check
+auth_user_id:
+    path: /api/authUserId
+pkm_img:
+    path: /api/pkmImg

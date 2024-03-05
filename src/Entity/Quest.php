@@ -34,7 +34,7 @@ class Quest
     #[ORM\Column]
     private ?int $objectifTarget = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]

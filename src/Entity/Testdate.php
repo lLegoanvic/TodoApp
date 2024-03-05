@@ -3,20 +3,19 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use App\Repository\TypeRepository;
+use App\EventSubscribers\MyDateSubscriber;
+use App\Repository\TestdateRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: TypeRepository::class)]
-#[ApiResource]
-class Type
+#[ORM\Entity(repositoryClass: TestdateRepository::class)]
+#[ApiResource(
+)]
+class Testdate
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
-    #[ORM\Column]
-    private ?int $codeType = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -30,18 +29,6 @@ class Type
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCodeType(): ?int
-    {
-        return $this->codeType;
-    }
-
-    public function setCodeType(int $codeType): static
-    {
-        $this->codeType = $codeType;
-
-        return $this;
     }
 
     public function getName(): ?string
@@ -61,7 +48,7 @@ class Type
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
