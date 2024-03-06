@@ -18,8 +18,7 @@ class Picture
     #[ORM\Column(length: 255)]
     private ?string $pkmpicture = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $frame = null;
+
 
     #[ORM\ManyToOne(inversedBy: 'pictures')]
     #[ORM\JoinColumn(nullable: false)]
@@ -30,6 +29,12 @@ class Picture
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'pictures')]
+    private ?Frame $frame = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $quantity = null;
 
     public function getId(): ?int
     {
@@ -48,17 +53,7 @@ class Picture
         return $this;
     }
 
-    public function getFrame(): ?string
-    {
-        return $this->frame;
-    }
-
-    public function setFrame(string $frame): static
-    {
-        $this->frame = $frame;
-
-        return $this;
-    }
+  
 
     public function getInventory(): ?Inventory
     {
@@ -92,6 +87,30 @@ class Picture
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getFrame(): ?Frame
+    {
+        return $this->frame;
+    }
+
+    public function setFrame(?Frame $frame): static
+    {
+        $this->frame = $frame;
+
+        return $this;
+    }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(?int $quantity): static
+    {
+        $this->quantity = $quantity;
 
         return $this;
     }
