@@ -120,19 +120,19 @@ class Level
         return $this;
     }
 
-    #[ORM\PreUpdate]
-    public function checkLevelUp(): void
-    {
-        // Vérifiez si l'actualXp dépasse le requiredXp
-        if ($this->actualXp >= $this->requiredXp) {
-            // Calculer le nouveau niveau
-            $newLevel = $this->level + 1;
-            $newRequiredXp = (int)($this->requiredXp * 1.15); // Augmente de 15%
-
-            // Mettre à jour le niveau et les XP
-            $this->level = $newLevel;
-            $this->actualXp -= $this->requiredXp;
-            $this->requiredXp = $newRequiredXp;
-        }
-    }
+//    #[ORM\PreUpdate]
+//    public function checkLevelUp(): void
+//    {
+//        // Vérifiez si l'actualXp dépasse le requiredXp
+//        if ($this->actualXp >= $this->requiredXp) {
+//            // Calculer le nouveau niveau
+//            $newLevel = $this->level + 1;
+//            $newRequiredXp = (int)($this->requiredXp * 1.15); // Augmente de 15%
+//
+//            // Mettre à jour le niveau et les XP
+//            $this->level = $newLevel;
+//            $this->actualXp -= $this->requiredXp;
+//            $this->requiredXp = $newRequiredXp;
+//        }
+//    }
 }

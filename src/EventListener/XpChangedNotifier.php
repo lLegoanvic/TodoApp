@@ -1,46 +1,29 @@
 <?php
 
-namespace App\EventSubscribers;
+namespace App\EventListener;
 
 
-use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\Entity\Booster;
 use App\Entity\Level;
 use Doctrine\ORM\EntityManagerInterface;
-use Random\RandomException;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\ViewEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 
-class LevelUpdateSubscriber implements EventSubscriberInterface
+class XpChangedNotifier
 {
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
-    public static function getSubscribedEvents()
+
+    public function postUpdate(Level $level, PostUpdateEventArgs $event): void
     {
-        return [
-            KernelEvents::VIEW => ['updateLevelOnXpChange', EventPriorities::PRE_WRITE],
-        ];
-    }
-
-    /**
-     * @throws RandomException
-     */
-    public function updateLevelOnXpChange(ViewEvent $event): void
-    {
-        $level = $event->getControllerResult();
-        $method = $event->getRequest()->getMethod();
-
-        if (!$level instanceof Level || !in_array($method, ['PUT', 'PATCH'])) {
-            return;
-        }
-
         if ($level->getActualXp() > $level->getRequiredXp()) {
+
             $user = $level->getUserLevel();
+
             $inventory = $user->getInventory();
             $booster = new Booster();
             $rand = random_int(0,100);
@@ -70,6 +53,9 @@ class LevelUpdateSubscriber implements EventSubscriberInterface
             $level->setLevel($newLevel);
             $level->setActualXp($level->getActualXp() - $level->getRequiredXp());
             $level->setRequiredXp($newRequiredXp);
+            $this->entityManager->persist($level);
+            $this->entityManager->flush();
         }
     }
+
 }
