@@ -5,6 +5,8 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PictureRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 #[ORM\Entity(repositoryClass: PictureRepository::class)]
 #[ApiResource]
@@ -13,9 +15,11 @@ class Picture
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['inventory:get'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['inventory:get'])]
     private ?string $pkmpicture = null;
 
 
@@ -25,12 +29,15 @@ class Picture
     private ?Inventory $inventory = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['inventory:get'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['inventory:get'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'pictures')]
+    #[Groups(['inventory:get'])]
     private ?Frame $frame = null;
 
     #[ORM\Column(nullable: true)]

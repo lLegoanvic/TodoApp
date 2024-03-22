@@ -7,31 +7,44 @@ use App\Repository\InventoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: InventoryRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['inventory:get']]  // group de lecture de l'entité
+    // appliqué a chaque property que l'api dois return
+    // si lecture de sous entité comme booster il faut ajouter le groupe de lecture du parent
+    // a chaque prop de l'enfant ( attention de pas le mettre sur le parents en question dans l'enfant ) 
+    // le nom inventory:get c'est juste pour s'y retrouver tu peux l'appeler comme tu veux genre ['groups' => ['OUILO']
+)]
 class Inventory
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['inventory:get'])]
     private ?int $id = null;
 
 
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['inventory:get'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['inventory:get'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\OneToMany(targetEntity: Booster::class, mappedBy: 'inventory')]
+    #[Groups(['inventory:get'])]
     private Collection $boosters;
 
     #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'inventory')]
+    #[Groups(['inventory:get'])]
     private Collection $pictures;
 
     #[ORM\OneToOne(mappedBy: 'inventory', cascade: ['persist', 'remove'])]
+    #[Groups(['inventory:get'])]
     private ?User $userInventory = null;
 
     public function __construct()
