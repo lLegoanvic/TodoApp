@@ -10,6 +10,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PictureRepository::class)]
 #[ApiResource]
+#[ApiResource(order: ['pkmId' => 'ASC'])]
 class Picture
 {
     #[ORM\Id]
@@ -41,7 +42,16 @@ class Picture
     private ?Frame $frame = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['inventory:get'])]
     private ?int $quantity = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['inventory:get'])]
+    private ?int $pkmId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['inventory:get'])]
+    private ?string $pkmName = null;
 
     public function getId(): ?int
     {
@@ -118,6 +128,30 @@ class Picture
     public function setQuantity(?int $quantity): static
     {
         $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getPkmId(): ?int
+    {
+        return $this->pkmId;
+    }
+
+    public function setPkmId(?int $pkmId): static
+    {
+        $this->pkmId = $pkmId;
+
+        return $this;
+    }
+
+    public function getPkmName(): ?string
+    {
+        return $this->pkmName;
+    }
+
+    public function setPkmName(?string $pkmName): static
+    {
+        $this->pkmName = $pkmName;
 
         return $this;
     }

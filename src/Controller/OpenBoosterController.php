@@ -79,6 +79,8 @@ class OpenBoosterController extends AbstractController
             $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
             if ($data) {
                 $pkmImgUrl = $data['sprites']['front_default'];
+                $pkmId = $data['id'];
+                $pkmName = $data['name'];
             }else{
                 return new JsonResponse(['error' => 'Api pokemon not available'], 400);
             }
@@ -91,75 +93,76 @@ class OpenBoosterController extends AbstractController
             $rand = random_int(0, 100);
             if ($booster->getRarity() === 0) {
                 if ($rand < 70) {
-                    $picture = $this->updateOrCreatePicture('1', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('1', $pkmImgUrl, $booster, $pkmName, $pkmId);
                 }
                 if ($rand >= 70 && $rand < 90) {
-                    $picture = $this->updateOrCreatePicture('2', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('2', $pkmImgUrl, $booster, $pkmName, $pkmId);
                 }
                 if ($rand >= 90 && $rand < 99) {
-                    $picture = $this->updateOrCreatePicture('3', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('3', $pkmImgUrl, $booster, $pkmName, $pkmId);
                 }
                 if ($rand >= 99) {
-                    $picture = $this->updateOrCreatePicture('4', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('4', $pkmImgUrl, $booster, $pkmName, $pkmId);
                 }
             }
             if ($booster->getRarity() === 1) {
                 if ($rand < 40) {
-                    $picture = $this->updateOrCreatePicture('1', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('1', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 40 && $rand < 85) {
-                    $picture = $this->updateOrCreatePicture('2', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('2', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 85 && $rand < 95) {
-                    $picture = $this->updateOrCreatePicture('3', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('3', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 95) {
-                    $picture = $this->updateOrCreatePicture('4', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('4', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
             }
             if ($booster->getRarity() === 2) {
                 if ($rand < 25) {
-                    $picture = $this->updateOrCreatePicture('1', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('1', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 25 && $rand < 70) {
-                    $picture = $this->updateOrCreatePicture('2', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('2', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 70 && $rand < 90) {
-                    $picture = $this->updateOrCreatePicture('3', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('3', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 90) {
-                    $picture = $this->updateOrCreatePicture('4', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('4', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
             }
             if ($booster->getRarity() === 3) {
                 if ($rand < 10) {
-                    $picture = $this->updateOrCreatePicture('1', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('1', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 10 && $rand < 50) {
-                    $picture = $this->updateOrCreatePicture('2', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('2', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 50 && $rand < 80) {
-                    $picture = $this->updateOrCreatePicture('3', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('3', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
                 if ($rand >= 80) {
-                    $picture = $this->updateOrCreatePicture('4', $pkmImgUrl, $booster);
+                    $picture = $this->updateOrCreatePicture('4', $pkmImgUrl, $booster, $pkmName, $pkmId);
 
                 }
             }
 
 
             if($picture !== null ){
+
                 $this->entityManager->persist($picture);
                 $this->entityManager->flush();
 
@@ -172,7 +175,7 @@ class OpenBoosterController extends AbstractController
         return new JsonResponse(['message' => 'booster correctement ouvert !']);
     }
 
-    public function updateOrCreatePicture($frame, $pkmImgUrl, $booster):Picture
+    public function updateOrCreatePicture($frame, $pkmImgUrl, $booster, $pkmName, $pkmId):Picture
     {
         $picture = $this->pictureRepository->findOneBy(['pkmpicture'=>$pkmImgUrl, 'frame'=>$frame,'inventory'=>$booster->getInventory()]);
         if($picture){
@@ -182,6 +185,8 @@ class OpenBoosterController extends AbstractController
             $picture->setUpdatedAt(new \DateTimeImmutable());
         } else{
             $picture = new Picture();
+            $picture->setPkmId($pkmId);
+            $picture->setPkmName($pkmName);
             $picture->setPkmpicture($pkmImgUrl);
             $picture->setQuantity('1');
             $picture->setFrame($this->frameRepository->find($frame));

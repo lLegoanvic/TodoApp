@@ -36,10 +36,12 @@ class Inventory
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\OneToMany(targetEntity: Booster::class, mappedBy: 'inventory')]
+    #[ORM\OrderBy(['rarity'=> 'desc'])]
     #[Groups(['inventory:get'])]
     private Collection $boosters;
 
     #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'inventory')]
+    #[ORM\OrderBy(['pkmId'=> 'asc'])]
     #[Groups(['inventory:get'])]
     private Collection $pictures;
 
