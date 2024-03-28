@@ -41,7 +41,7 @@ class OpenBoosterController extends AbstractController
         $boosterData = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $boosterId = $boosterData['boosterId'];
         $booster = $this->boosterRepository->find($boosterId);
-
+        $retunedPictures = [];
         $token = substr($request->headers->get('Authorization'), 7);
         $tokenParts = explode(".", $token);
         $tokenPayload = base64_decode($tokenParts[1]);
@@ -165,14 +165,15 @@ class OpenBoosterController extends AbstractController
 
                 $this->entityManager->persist($picture);
                 $this->entityManager->flush();
-
+                $retunedPictures[] = ['id' => $picture->getId() ,'img' => $picture->getPkmpicture(),'frame' =>$picture->getFrame()->getCodeFrame(), 'name' => $picture->getPkmName()];
                 $this->entityManager->remove($booster);
                 $this->entityManager->flush();
             }else{
                 return new JsonResponse(['message'=> 'l\'image n\'existe pas'],404);
             }
+//            ['img'.$i => $picture];
         }
-        return new JsonResponse(['message' => 'booster correctement ouvert !']);
+        return new JsonResponse(['message' => 'booster correctement ouvert !', 'cards' => $retunedPictures ]);
     }
 
     public function updateOrCreatePicture($frame, $pkmImgUrl, $booster, $pkmName, $pkmId):Picture

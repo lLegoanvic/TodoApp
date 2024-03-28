@@ -53,6 +53,10 @@ class Picture
     #[Groups(['inventory:get'])]
     private ?string $pkmName = null;
 
+    #[ORM\Column(nullable: false, options: ["default" => false])]
+    #[Groups(['inventory:get'])]
+    private bool $locked = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -152,6 +156,18 @@ class Picture
     public function setPkmName(?string $pkmName): static
     {
         $this->pkmName = $pkmName;
+
+        return $this;
+    }
+
+    public function isLocked(): ?bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(?bool $locked): static
+    {
+        $this->locked = $locked;
 
         return $this;
     }

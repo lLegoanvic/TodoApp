@@ -82,14 +82,15 @@ class BurnCardsController extends AbstractController
 
             $expGain = 0;
             foreach ($inventory->getPictures() as $picture){
-                if($picture->getQuantity()>1){
-                    $quantity = $picture->getQuantity()-1;
-                    $expGain += ((($picture->getFrame()->getId() ** 2) * 5) * $quantity);
-                    $picture->setQuantity(1);
-                    $picture->setUpdatedAt(new \DateTimeImmutable());
-                    $this->entityManager->persist($picture);
+                if($picture->isLocked() === 0){
+                    if($picture->getQuantity()>1){
+                        $quantity = $picture->getQuantity()-1;
+                        $expGain += ((($picture->getFrame()->getId() ** 2) * 5) * $quantity);
+                        $picture->setQuantity(1);
+                        $picture->setUpdatedAt(new \DateTimeImmutable());
+                        $this->entityManager->persist($picture);
+                    }
                 }
-
             }
                 $newXp = $level->getActualXp() + $expGain;
                 $level->setActualXp($newXp);
