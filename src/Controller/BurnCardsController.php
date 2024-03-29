@@ -71,32 +71,36 @@ class BurnCardsController extends AbstractController
         try{
             $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
             $init = $this->init($request);
+            $decodedPayload = $init['decodedPayload'];
             try{
                 $user = $this->userRepository->find($data['id']);
             } catch (\Exception $e){
                 return new JsonResponse(['message', $e->getMessage()]);
             }
-
-            $level = $user->getLevel();
-            $inventory = $user->getInventory();
-
-            $expGain = 0;
-            foreach ($inventory->getPictures() as $picture){
-                if($picture->isLocked() === 0){
-                    if($picture->getQuantity()>1){
-                        $quantity = $picture->getQuantity()-1;
-                        $expGain += ((($picture->getFrame()->getId() ** 2) * 5) * $quantity);
-                        $picture->setQuantity(1);
-                        $picture->setUpdatedAt(new \DateTimeImmutable());
-                        $this->entityManager->persist($picture);
+            if($user->getId() === $decodedPayload['id']){
+                $level = $user->getLevel();
+                $inventory = $user->getInventory();
+                dd($inventory->getPictures());
+                $expGain = 0;
+                foreach ($inventory->getPictures() as $picture){
+                    if($picture->isLocked() === 0){
+                        if($picture->getQuantity()>1){
+                            $quantity = $picture->getQuantity()-1;
+                            $expGain += ((($picture->getFrame()->getId() ** 2) * 5) * $quantity);
+                            $picture->setQuantity(1);
+                            $picture->setUpdatedAt(new \DateTimeImmutable());
+                            $this->entityManager->persist($picture);
+                        }
                     }
                 }
-            }
                 $newXp = $level->getActualXp() + $expGain;
                 $level->setActualXp($newXp);
                 $level->setUpdatedAt(new \DateTimeImmutable());
                 $this->entityManager->persist($level);
                 $this->entityManager->flush();
+            }
+//            dd($user);
+
 
 
             return new JsonResponse(['message', 'cartes burnt avec succès !']);
